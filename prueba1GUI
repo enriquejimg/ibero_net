@@ -1,0 +1,78 @@
+import tkinter as tk
+import subprocess
+import os
+import sys
+
+class NetworkDiagnoseApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Network Diagnose Tool")
+
+        self.label = tk.Label(root, text="Enter a website/domain:")
+        self.label.pack()
+
+        self.website_entry = tk.Entry(root)
+        self.website_entry.pack()
+
+        self.ping_button = tk.Button(root, text="Ping", command=self.ping)
+        self.ping_button.pack()
+
+        self.traceroute_button = tk.Button(root, text="Traceroute", command=self.traceroute)
+        self.traceroute_button.pack()
+
+        self.ipconfig_button = tk.Button(root, text="IP Config", command=self.ipconfig)
+        self.ipconfig_button.pack()
+
+        self.result_label = tk.Label(root, text="Results:")
+        self.result_label.pack()
+
+        self.result_text = tk.Text(root)
+        self.result_text.pack()
+
+        self.save_button = tk.Button(root, text="Save Results", command=self.save_results)
+        self.save_button.pack()
+
+        self.close_button = tk.Button(root, text="Close", command=root.quit)
+        self.close_button.pack()
+
+    def ping(self):
+        website = self.website_entry.get()
+        cmd = ["ping", "-c", "4", website]
+        self.run_command(cmd)
+
+    def traceroute(self):
+        website = self.website_entry.get()
+        cmd = ["traceroute", website]
+        self.run_command(cmd)
+
+    def ipconfig(self):
+        cmd = ["ipconfig", "/all"]
+        self.run_command(cmd)
+
+    def run_command(self, cmd):
+        output = subprocess.run(cmd, capture_output=True, text=True)
+        result = output.stdout
+        self.result_text.insert(tk.END, result)
+        file_path = "/Users/quiquejimenez/Documents/pythonPruebas/diagnose_results.txt"
+        # Save the result to a text file
+        with open(file_path, "a") as f:
+            f.write(result)
+            f.write("\n\n")
+
+    def save_results(self):
+        file_path = "/Users/quiquejimenez/Documents/pythonPruebas/diagnose_results.txt"
+        with open(file_path, "r") as f:
+            results = f.read()
+            save_window = tk.Toplevel(self.root)
+            save_window.title("Saved Results")
+            save_text = tk.Text(save_window)
+            save_text.insert(tk.END, results)
+            save_text.pack()
+
+def main():
+    root = tk.Tk()
+    app = NetworkDiagnoseApp(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
